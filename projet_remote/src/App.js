@@ -11,7 +11,7 @@ function App() {
 
   const vid = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false); 
-  
+  const [isMute, setIsMute] = useState(false);  
 
   function start(){
     if (isPlaying) {
@@ -22,6 +22,22 @@ function App() {
       setIsPlaying(true);
     }
   }
+
+  function mute(){
+    if(isMute){
+      vid.current.defaultMuted = false;
+      vid.current.muted = false;
+      setIsMute(false);
+
+    }
+    else{
+      vid.current.defaultMuted = true;
+      vid.current.muted = true;
+      setIsMute(true);
+    }
+  }
+
+
   return (
    
     
@@ -53,7 +69,7 @@ function App() {
               <div className='col1'>
               <button className='bt'><i className="fi fi-br-angle-small-left"></i></button>
               <button className='bt' onClick={start}><i className="fi fi-br-play-pause"></i></button>
-              <button className='bt'><i className="fi fi-br-volume-mute"></i></button>
+              <button className='bt' onClick={mute}><i className="fi fi-br-volume-mute"></i></button>
               </div>
               <div className='col2'>
               <button className='bt'><i className="fi fi-br-screen"></i></button>
