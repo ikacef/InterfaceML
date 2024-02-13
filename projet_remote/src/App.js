@@ -1,13 +1,54 @@
 import logo from './logo.svg';
 import 'bootstrap/dist/css/bootstrap.css';
 import './App.css';
+import video from './mov_bbb.mp4';
+import { useEffect, useRef, useState } from "react";
 
 
 
 function App() {
+
+
+  const vid = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false); 
+  const [isMute, setIsMute] = useState(false);  
+
+  function start(){
+    if (isPlaying) {
+      vid.current.pause();
+      setIsPlaying(false);
+    } else {
+      vid.current.play();
+      setIsPlaying(true);
+    }
+  }
+
+  function mute(){
+    if(isMute){
+      vid.current.defaultMuted = false;
+      vid.current.muted = false;
+      setIsMute(false);
+
+    }
+    else{
+      vid.current.defaultMuted = true;
+      vid.current.muted = true;
+      setIsMute(true);
+    }
+  }
+
+
   return (
+   
+    
+
+    
     <div className="App">
+       
       <header className="App-header">
+      <div className='video'>
+     <video id="my-vid" src={video} type="video/mp4" controls ref={vid}></video>
+    </div>
         <div className="box">
           <div className="top-row">
           <button className="power"><i className="fi fi-br-power"></i></button>
@@ -27,8 +68,8 @@ function App() {
             <div className='box-buttons'>
               <div className='col1'>
               <button className='bt'><i className="fi fi-br-angle-small-left"></i></button>
-              <button className='bt'><i className="fi fi-br-play-pause"></i></button>
-              <button className='bt'><i className="fi fi-br-volume-mute"></i></button>
+              <button className='bt' onClick={start}><i className="fi fi-br-play-pause"></i></button>
+              <button className='bt' onClick={mute}><i className="fi fi-br-volume-mute"></i></button>
               </div>
               <div className='col2'>
               <button className='bt'><i className="fi fi-br-screen"></i></button>
