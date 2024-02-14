@@ -12,6 +12,7 @@ function App() {
   const vid = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false); 
   const [isMute, setIsMute] = useState(false);  
+  var v = document.getElementById("my-vid");
 
   function start(){
     if (isPlaying) {
@@ -36,6 +37,54 @@ function App() {
       setIsMute(true);
     }
   }
+
+  function increaseVolume() {
+
+   if(isMute){
+    vid.current.defaultMuted = false;
+    vid.current.muted =false;
+    setIsMute(false);
+   }
+    
+    var currentVolume = v.volume;
+    var increment = 0.1;
+    var newVolume = currentVolume + increment;
+  
+    // Ensure new volume is within [0, 1] and is finite
+    if (!isFinite(newVolume) || newVolume < 0) {
+      newVolume = 0; // Ensure volume is not less than 0
+    } else if (newVolume > 1) {
+      newVolume = 1; // Ensure volume does not exceed 1
+    }
+  
+    // Set the volume to the new value
+    v.volume = newVolume;
+  }
+
+  function decreaseVolume(){
+
+    if(isMute){
+      vid.current.defaultMuted = false;
+      vid.current.muted =false;
+      setIsMute(false);
+     }
+
+
+     var currentVolume = v.volume;
+    var increment = 0.1;
+    var newVolume = currentVolume - increment;
+  
+    // Ensure new volume is within [0, 1] and is finite
+    if (!isFinite(newVolume) || newVolume < 0) {
+      newVolume = 0; // Ensure volume is not less than 0
+    } else if (newVolume > 1) {
+      newVolume = 1; // Ensure volume does not exceed 1
+    }
+  
+    // Set the volume to the new value
+    v.volume = newVolume;
+  }
+  
 
 
   return (
@@ -73,9 +122,9 @@ function App() {
               </div>
               <div className='col2'>
               <button className='bt'><i className="fi fi-br-screen"></i></button>
-              <button className='bt-four'>
-              <i  className="fi fi-br-plus"></i>
-              <i className="fi fi-br-minus"></i>
+              <button  className='bt-four'>
+              <i  onClick={increaseVolume} className="fi fi-br-plus"></i>
+              <i  onClick={decreaseVolume} className="fi fi-br-minus"></i>
               </button>
               </div>
               
