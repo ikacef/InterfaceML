@@ -1,19 +1,21 @@
+
+
+
 let currentSession;
 let currentMediaSession;
 let isPlaying = true;
 let currentVideoIndex = 0;
 let currentVideoUrl;
 let updateInterval;
-let lastVolumeLevel = 1;
 const seekSlider = document.getElementById('seekSlider');
-const muteToggle = document.getElementById('muteToggle');
 const currentTimeElement = document.getElementById('currentTime');
 const totalTimeElement = document.getElementById('totalTime');
 const defaultContentType = 'video/mp4';
 const videoList = [
-    'file:///Users/cefcurlz/Downloads/Playboi%20Carti%20-%20UR%20THE%20MOON%20(Offical%20Music%20Video).mp4',
+    'https://transfertco.ca/video/DBillPrelude.mp4',
     'https://transfertco.ca/video/DBillSpotted.mp4',
     'https://transfertco.ca/video/usa23_7_02.mp4'
+    // Ajoutez plus d'URL de vidéos au besoin
 ];
 
 document.getElementById('connectButton').addEventListener('click', () => {
@@ -22,13 +24,7 @@ document.getElementById('connectButton').addEventListener('click', () => {
 
 document.getElementById('startBtn').addEventListener('click', () => {
     if (currentSession) {
-        if(localStorage.getItem('currentVideoIndexLS')) {
-            loadMedia(videoList[localStorage.getItem('currentVideoIndexLS')]);
-        } else {
-            loadMedia(videoList[currentVideoIndex]);
-        }
-        
-       
+        loadMedia(videoList[currentVideoIndex]);
     } else {
         alert('Connectez-vous sur chromecast en premier');
     }
@@ -37,17 +33,6 @@ document.getElementById('startBtn').addEventListener('click', () => {
 document.getElementById('nextBtn').addEventListener('click', () => {
     if (currentSession) {
         currentVideoIndex = (currentVideoIndex + 1) % videoList.length;
-        localStorage.setItem('currentVideoIndexLS', currentVideoIndex);
-        loadMedia(videoList[currentVideoIndex]);
-    } else {
-        alert('Connectez-vous sur chromecast en premier');
-    }
-});
-
-document.getElementById('previousBtn').addEventListener('click', () => {
-    if (currentSession) {
-        currentVideoIndex = (currentVideoIndex - 1) % videoList.length;
-        localStorage.setItem('currentVideoIndexLS', currentVideoIndex);
         loadMedia(videoList[currentVideoIndex]);
     } else {
         alert('Connectez-vous sur chromecast en premier');
@@ -63,36 +48,15 @@ document.getElementById('playBtn').addEventListener('click', () => {
         }
         isPlaying = !isPlaying;
     }
-});
+});  
 
 
 function sessionListener(newSession) {
     currentSession = newSession;
     document.getElementById('startBtn').style.display = 'block';
     document.getElementById('nextBtn').style.display = 'block';
-    document.getElementById('previousBtn').style.display = 'block';
 }
 
-
-function initializeMuted(remotePlayerController, remotePlayer, mediaSession) {
-    //Ajout listener + boutton
-    muteToggle.addEventListener('click', () => {
-        if (currentMediaSession.volume.muted) {
-            // Unmute
-            const volume = new chrome.cast.Volume(lastVolumeLevel, false);
-            const volumeRequest = new chrome.cast.media.VolumeRequest(volume);
-            currentMediaSession.setVolume(volumeRequest, onMediaCommandSuccess, onError);
-        } else {
-            
-            
-            lastVolumeLevel = currentMediaSession.volume.level;
-            // Mute
-            const volume = new chrome.cast.Volume(0, true);
-            const volumeRequest = new chrome.cast.media.VolumeRequest(volume);
-            currentMediaSession.setVolume(volumeRequest, onMediaCommandSuccess, onError);
-        }
-    });
-}
 
 
 function initializeSeekSlider(remotePlayerController, mediaSession) {
@@ -156,7 +120,6 @@ function loadMedia(videoUrl) {
     currentSession.loadMedia(request, mediaSession => {
         console.log('Media chargé avec succès');
         initializeSeekSlider(remotePlayerController, mediaSession);
-        initializeMuted(remotePlayerController, remotePlayer, mediaSession);
       }, onError);
 }
 
@@ -164,4 +127,7 @@ function formatTime(timeInSeconds) {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = Math.floor(timeInSeconds % 60);
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-}
+}  
+
+
+
