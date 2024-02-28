@@ -68,9 +68,6 @@ document.getElementById('playBtn').addEventListener('click', () => {
 
 function sessionListener(newSession) {
     currentSession = newSession;
-    document.getElementById('startBtn').style.display = 'block';
-    document.getElementById('nextBtn').style.display = 'block';
-    document.getElementById('previousBtn').style.display = 'block';
 }
 
 
@@ -97,7 +94,6 @@ function initializeMuted(remotePlayerController, remotePlayer, mediaSession) {
 
 function initializeSeekSlider(remotePlayerController, mediaSession) {
     currentMediaSession = mediaSession;
-    document.getElementById('playBtn').style.display = 'block';
    // Set max value of seek slider to media duration in seconds
    seekSlider.max = mediaSession.media.duration;
 
@@ -120,9 +116,9 @@ function initializeSeekSlider(remotePlayerController, mediaSession) {
 
 function receiverListener(availability) {
     if (availability === chrome.cast.ReceiverAvailability.AVAILABLE) {
-        document.getElementById('connectButton').style.display = 'block';
+        document.getElementById('connectButton').style.display = '';
     } else {
-        document.getElementById('connectButton').style.display = 'none';
+        document.getElementById('connectButton').style.display = '';
     }
 }
 
