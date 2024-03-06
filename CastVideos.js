@@ -26,6 +26,8 @@ document.getElementById('startBtn').addEventListener('click', () => {
         } else {
             loadMedia(videoList[currentVideoIndex]);
         }
+       
+       
     } else {
         alert('Connectez-vous sur chromecast en premier');
     }
@@ -65,34 +67,40 @@ document.getElementById('playBtn').addEventListener('click', () => {
  
 function sessionListener(newSession) {
     currentSession = newSession;
+    initializeMuted(remotePlayerController, remotePlayer, currentSession.getMediaSession());
+
 }
-
-
-function initializePauseButton(remotePlayerController, remotePlayer, mediaSession) {
-    const pauseButton = document.getElementById('pauseButton');
-
-    pauseButton.addEventListener('click', () => {
-        if (remotePlayer.isPaused) {
-            remotePlayerController.playOrPause();
+ 
+ 
+function initializeMuted(remotePlayerController, remotePlayer, mediaSession) {
+    //Ajout listener + boutton
+    muteToggle.addEventListener('click', () => {
+        if (currentMediaSession.volume.muted) {
+            // Unmute
+            const volume = new chrome.cast.Volume(lastVolumeLevel, false);
+            const volumeRequest = new chrome.cast.media.VolumeRequest(volume);
+            currentMediaSession.setVolume(volumeRequest, onMediaCommandSuccess, onError);
         } else {
-            remotePlayerController.playOrPause();
+           
+           
+            lastVolumeLevel = currentMediaSession.volume.level;
+            // Mute
+            const volume = new chrome.cast.Volume(0, true);
+            const volumeRequest = new chrome.cast.media.VolumeRequest(volume);
+            currentMediaSession.setVolume(volumeRequest, onMediaCommandSuccess, onError);
         }
     });
-
-    remotePlayerController.addEventListener(
-        cast.framework.RemotePlayerEventType.IS_PAUSED_CHANGED,
-        () => {
-            pauseButton.textContent = remotePlayer.isPaused ? 'Play' : 'Pause';
-        }
-    );
 }
-
-
+ 
+ 
+function initializeMediaSession(mediaSession) {
+    currentMediaSession = mediaSession;
+    document.getElementById('playBtn').style.display = 'block';
+ }
+ 
 function receiverListener(availability) {
     if (availability === chrome.cast.ReceiverAvailability.AVAILABLE) {
-        document.getElementById('connectButton').style.display = '';
     } else {
-        document.getElementById('connectButton').style.display = '';
     }
 }
  
@@ -119,9 +127,7 @@ function loadMedia(videoUrl) {
     currentVideoUrl = videoUrl;
     const mediaInfo = new chrome.cast.media.MediaInfo(videoUrl, defaultContentType);
     const request = new chrome.cast.media.LoadRequest(mediaInfo);
-    const remotePlayer = new cast.framework.RemotePlayer();
-    const remotePlayerController = new cast.framework.RemotePlayerController(remotePlayer);
-
+ 
     currentSession.loadMedia(request, mediaSession => {
         console.log('Media chargé avec succès');
         initializeMediaSession(mediaSession);
