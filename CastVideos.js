@@ -11,7 +11,7 @@ const currentTimeElement = document.getElementById('currentTime');
 const totalTimeElement = document.getElementById('totalTime');
 const defaultContentType = 'video/mp4';
 const videoList = [
-    'file:///Users/cefcurlz/Downloads/Playboi%20Carti%20-%20UR%20THE%20MOON%20(Offical%20Music%20Video).mp4',
+    'https://github.com/ikacef/InterfaceML/raw/develop/tournage-informatique-ogelvy.mov',
     'https://transfertco.ca/video/DBillSpotted.mp4',
     'https://transfertco.ca/video/usa23_7_02.mp4'
 ];
@@ -27,8 +27,6 @@ document.getElementById('startBtn').addEventListener('click', () => {
         } else {
             loadMedia(videoList[currentVideoIndex]);
         }
-        
-       
     } else {
         alert('Connectez-vous sur chromecast en premier');
     }
@@ -71,48 +69,25 @@ function sessionListener(newSession) {
 }
 
 
-function initializeMuted(remotePlayerController, remotePlayer, mediaSession) {
-    //Ajout listener + boutton
-    muteToggle.addEventListener('click', () => {
-        if (currentMediaSession.volume.muted) {
-            // Unmute
-            const volume = new chrome.cast.Volume(lastVolumeLevel, false);
-            const volumeRequest = new chrome.cast.media.VolumeRequest(volume);
-            currentMediaSession.setVolume(volumeRequest, onMediaCommandSuccess, onError);
+function initializePauseButton(remotePlayerController, remotePlayer, mediaSession) {
+    const pauseButton = document.getElementById('pauseButton');
+
+    pauseButton.addEventListener('click', () => {
+        if (remotePlayer.isPaused) {
+            remotePlayerController.playOrPause();
         } else {
-            
-            
-            lastVolumeLevel = currentMediaSession.volume.level;
-            // Mute
-            const volume = new chrome.cast.Volume(0, true);
-            const volumeRequest = new chrome.cast.media.VolumeRequest(volume);
-            currentMediaSession.setVolume(volumeRequest, onMediaCommandSuccess, onError);
+            remotePlayerController.playOrPause();
         }
     });
+
+    remotePlayerController.addEventListener(
+        cast.framework.RemotePlayerEventType.IS_PAUSED_CHANGED,
+        () => {
+            pauseButton.textContent = remotePlayer.isPaused ? 'Play' : 'Pause';
+        }
+    );
 }
 
-
-function initializeSeekSlider(remotePlayerController, mediaSession) {
-    currentMediaSession = mediaSession;
-   // Set max value of seek slider to media duration in seconds
-   seekSlider.max = mediaSession.media.duration;
-
-    // Update seek slider and time elements on time update
-    updateInterval = setInterval(() => {
-        const currentTime = mediaSession.getEstimatedTime();
-        const totalTime = mediaSession.media.duration;
-  
-        seekSlider.value = currentTime;
-        currentTimeElement.textContent = formatTime(currentTime);
-        totalTimeElement.textContent = formatTime(totalTime);
-      }, 1000); //chaque 1000 ms... 1 sec
-  
-      // slider change
-      seekSlider.addEventListener('input', () => {
-        const seekTime = parseFloat(seekSlider.value);
-        remotePlayerController.seek(seekTime);
-      });
- }
 
 function receiverListener(availability) {
     if (availability === chrome.cast.ReceiverAvailability.AVAILABLE) {
@@ -160,4 +135,34 @@ function formatTime(timeInSeconds) {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = Math.floor(timeInSeconds % 60);
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    
 }
+
+function increaseVolume() {
+    if (!currentMediaSession) return;
+
+    let newVolumeLevel = currentMediaSession.volume.level + 0.1;
+    if (newVolumeLevel > 1) newVolumeLevel = 1; // S'assurer que le volume ne dépasse pas 1
+
+    // Créer et envoyer une requête de changement de volume
+    const volumeRequest = new chrome.cast.media.VolumeRequest(new chrome.cast.Volume(newVolumeLevel, false));
+    currentMediaSession.setVolume(volumeRequest, onVolumeChangeSuccess, onError);
+}
+
+function decreaseVolume() {
+    if (!currentMediaSession) return;
+
+    let newVolumeLevel = currentMediaSession.volume.level - 0.1;
+    if (newVolumeLevel < 0) newVolumeLevel = 0; 
+
+    const volumeRequest = new chrome.cast.media.VolumeRequest(new chrome.cast.Volume(newVolumeLevel, false));
+    currentMediaSession.setVolume(volumeRequest, onVolumeChangeSuccess, onError);
+}
+
+function onVolumeChangeSuccess() {
+    console.log('Changement de volume réussi');
+}
+
+document.getElementById('plus').addEventListener('click', increaseVolume);
+document.getElementById('minus').addEventListener('click', decreaseVolume);
