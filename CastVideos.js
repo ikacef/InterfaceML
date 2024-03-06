@@ -14,11 +14,11 @@ const videoList = [
     'https://transfertco.ca/video/DBillSpotted.mp4',
     'https://transfertco.ca/video/usa23_7_02.mp4'
 ];
-
+ 
 document.getElementById('connectButton').addEventListener('click', () => {
     initializeApiOnly();
 });
-
+ 
 document.getElementById('startBtn').addEventListener('click', () => {
     if (currentSession) {
         if(localStorage.getItem('currentVideoIndexLS')) {
@@ -26,11 +26,13 @@ document.getElementById('startBtn').addEventListener('click', () => {
         } else {
             loadMedia(videoList[currentVideoIndex]);
         }
+       
+       
     } else {
         alert('Connectez-vous sur chromecast en premier');
     }
 });
-
+ 
 document.getElementById('nextBtn').addEventListener('click', () => {
     if (currentSession) {
         currentVideoIndex = (currentVideoIndex + 1) % videoList.length;
@@ -40,7 +42,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
         alert('Connectez-vous sur chromecast en premier');
     }
 });
-
+ 
 document.getElementById('previousBtn').addEventListener('click', () => {
     if (currentSession) {
         currentVideoIndex = (currentVideoIndex - 1) % videoList.length;
@@ -50,121 +52,88 @@ document.getElementById('previousBtn').addEventListener('click', () => {
         alert('Connectez-vous sur chromecast en premier');
     }
 });
-
+ 
 document.getElementById('playBtn').addEventListener('click', () => {
-    let playPauseIcon = document.getElementById("playBtn"); // Récupère l'icône du bouton
     if (currentMediaSession) {
         if (isPlaying) {
-            currentMediaSession.pause(null, onMediaCommandSuccess, onError); // Met la vidéo en pause
-            playPauseIcon.classList = ["fi", "fi-br-play"]; // Change l'icône en icône de lecture
+            currentMediaSession.pause(null, onMediaCommandSuccess, onError);
         } else {
-            currentMediaSession.play(null, onMediaCommandSuccess, onError); // Rejoue la vidéo
-            playPauseIcon.classList = ["fi", "fi-br-pause"]; // Change l'icône en icône de pause
+            currentMediaSession.play(null, onMediaCommandSuccess, onError);
         }
-        isPlaying = !isPlaying; // Inverse l'état de lecture
+        isPlaying = !isPlaying;
     }
 });
-
-
+ 
+ 
 function sessionListener(newSession) {
     currentSession = newSession;
+    initializeMuted(remotePlayerController, remotePlayer, currentSession.getMediaSession());
+
 }
-
-
-function initializePauseButton(remotePlayerController, remotePlayer, mediaSession) {
-    const pauseButton = document.getElementById('playBtn');
-
-    pauseButton.addEventListener('click', () => {
-        if (remotePlayer.isPaused) {
-            remotePlayerController.playOrPause();
+ 
+ 
+function initializeMuted(remotePlayerController, remotePlayer, mediaSession) {
+    //Ajout listener + boutton
+    muteToggle.addEventListener('click', () => {
+        if (currentMediaSession.volume.muted) {
+            // Unmute
+            const volume = new chrome.cast.Volume(lastVolumeLevel, false);
+            const volumeRequest = new chrome.cast.media.VolumeRequest(volume);
+            currentMediaSession.setVolume(volumeRequest, onMediaCommandSuccess, onError);
         } else {
-            remotePlayerController.playOrPause();
+            lastVolumeLevel = currentMediaSession.volume.level;
+            // Mute
+            const volume = new chrome.cast.Volume(0, true);
+            const volumeRequest = new chrome.cast.media.VolumeRequest(volume);
+            currentMediaSession.setVolume(volumeRequest, onMediaCommandSuccess, onError);
         }
     });
-
-    remotePlayerController.addEventListener(
-        cast.framework.RemotePlayerEventType.IS_PAUSED_CHANGED,
-        () => {
-            pauseButton.textContent = remotePlayer.isPaused ? 'Play' : 'Pause';
-        }
-    );
 }
-
-
+ 
+ 
+function initializeMediaSession(mediaSession) {
+    currentMediaSession = mediaSession;
+ }
+ 
 function receiverListener(availability) {
     if (availability === chrome.cast.ReceiverAvailability.AVAILABLE) {
-        document.getElementById('connectButton').style.display = '';
     } else {
-        document.getElementById('connectButton').style.display = '';
     }
 }
-
+ 
 function onInitSuccess() {
     console.log('Chromecast init success');
 }
-
+ 
 function onError(error) {
     console.error('Chromecast initialization error', error);
 }
-
+ 
 function onMediaCommandSuccess() {
     console.log('Media command success');
 }
-
+ 
 function initializeApiOnly() {
-    
     const sessionRequest = new chrome.cast.SessionRequest(chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID);
     const apiConfig = new chrome.cast.ApiConfig(sessionRequest, sessionListener, receiverListener);
-
+ 
     chrome.cast.initialize(apiConfig, onInitSuccess, onError);
 }
-
+ 
 function loadMedia(videoUrl) {
     currentVideoUrl = videoUrl;
     const mediaInfo = new chrome.cast.media.MediaInfo(videoUrl, defaultContentType);
     const request = new chrome.cast.media.LoadRequest(mediaInfo);
-    const remotePlayer = new cast.framework.RemotePlayer();
-    const remotePlayerController = new cast.framework.RemotePlayerController(remotePlayer);
-
+ 
     currentSession.loadMedia(request, mediaSession => {
         console.log('Media chargé avec succès');
-        initializeSeekSlider(remotePlayerController, mediaSession);
-        initializeMuted(remotePlayerController, remotePlayer, mediaSession);
+        initializeMediaSession(mediaSession);
+        initializeMuted(mediaSession);
       }, onError);
 }
-
+ 
 function formatTime(timeInSeconds) {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = Math.floor(timeInSeconds % 60);
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-    
 }
-
-function increaseVolume() {
-    if (!currentMediaSession) return;
-
-    let newVolumeLevel = currentMediaSession.volume.level + 0.1;
-    if (newVolumeLevel > 1) newVolumeLevel = 1; // S'assurer que le volume ne dépasse pas 1
-
-
-    const volumeRequest = new chrome.cast.media.VolumeRequest(new chrome.cast.Volume(newVolumeLevel, false));
-    currentMediaSession.setVolume(volumeRequest, onVolumeChangeSuccess, onError);
-}
-
-function decreaseVolume() {
-    if (!currentMediaSession) return;
-
-    let newVolumeLevel = currentMediaSession.volume.level - 0.1;
-    if (newVolumeLevel < 0) newVolumeLevel = 0; 
-
-    const volumeRequest = new chrome.cast.media.VolumeRequest(new chrome.cast.Volume(newVolumeLevel, false));
-    currentMediaSession.setVolume(volumeRequest, onVolumeChangeSuccess, onError);
-}
-
-function onVolumeChangeSuccess() {
-    console.log('Changement de volume réussi');
-}
-
-document.getElementById('plus').addEventListener('click', increaseVolume);
-document.getElementById('minus').addEventListener('click', decreaseVolume);
