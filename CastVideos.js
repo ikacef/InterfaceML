@@ -135,4 +135,34 @@ function formatTime(timeInSeconds) {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = Math.floor(timeInSeconds % 60);
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    
 }
+
+function increaseVolume() {
+    if (!currentMediaSession) return;
+
+    let newVolumeLevel = currentMediaSession.volume.level + 0.1;
+    if (newVolumeLevel > 1) newVolumeLevel = 1; // S'assurer que le volume ne dépasse pas 1
+
+    // Créer et envoyer une requête de changement de volume
+    const volumeRequest = new chrome.cast.media.VolumeRequest(new chrome.cast.Volume(newVolumeLevel, false));
+    currentMediaSession.setVolume(volumeRequest, onVolumeChangeSuccess, onError);
+}
+
+function decreaseVolume() {
+    if (!currentMediaSession) return;
+
+    let newVolumeLevel = currentMediaSession.volume.level - 0.1;
+    if (newVolumeLevel < 0) newVolumeLevel = 0; 
+
+    const volumeRequest = new chrome.cast.media.VolumeRequest(new chrome.cast.Volume(newVolumeLevel, false));
+    currentMediaSession.setVolume(volumeRequest, onVolumeChangeSuccess, onError);
+}
+
+function onVolumeChangeSuccess() {
+    console.log('Changement de volume réussi');
+}
+
+document.getElementById('plus').addEventListener('click', increaseVolume);
+document.getElementById('minus').addEventListener('click', decreaseVolume);
