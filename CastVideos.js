@@ -5,7 +5,6 @@ let currentVideoIndex = 0;
 let currentVideoUrl;
 let updateInterval;
 let lastVolumeLevel = 1;
-const seekSlider = document.getElementById('seekSlider');
 const muteToggle = document.getElementById('muteToggle');
 const currentTimeElement = document.getElementById('currentTime');
 const totalTimeElement = document.getElementById('totalTime');
@@ -53,13 +52,16 @@ document.getElementById('previousBtn').addEventListener('click', () => {
 });
 
 document.getElementById('playBtn').addEventListener('click', () => {
+    let playPauseIcon = document.getElementById("playBtn"); // Récupère l'icône du bouton
     if (currentMediaSession) {
         if (isPlaying) {
-            currentMediaSession.pause(null, onMediaCommandSuccess, onError);
+            currentMediaSession.pause(null, onMediaCommandSuccess, onError); // Met la vidéo en pause
+            playPauseIcon.classList = ["fi", "fi-br-play"]; // Change l'icône en icône de lecture
         } else {
-            currentMediaSession.play(null, onMediaCommandSuccess, onError);
+            currentMediaSession.play(null, onMediaCommandSuccess, onError); // Rejoue la vidéo
+            playPauseIcon.classList = ["fi", "fi-br-pause"]; // Change l'icône en icône de pause
         }
-        isPlaying = !isPlaying;
+        isPlaying = !isPlaying; // Inverse l'état de lecture
     }
 });
 
@@ -70,7 +72,7 @@ function sessionListener(newSession) {
 
 
 function initializePauseButton(remotePlayerController, remotePlayer, mediaSession) {
-    const pauseButton = document.getElementById('pauseButton');
+    const pauseButton = document.getElementById('playBtn');
 
     pauseButton.addEventListener('click', () => {
         if (remotePlayer.isPaused) {
@@ -145,7 +147,7 @@ function increaseVolume() {
     let newVolumeLevel = currentMediaSession.volume.level + 0.1;
     if (newVolumeLevel > 1) newVolumeLevel = 1; // S'assurer que le volume ne dépasse pas 1
 
-    // Créer et envoyer une requête de changement de volume
+
     const volumeRequest = new chrome.cast.media.VolumeRequest(new chrome.cast.Volume(newVolumeLevel, false));
     currentMediaSession.setVolume(volumeRequest, onVolumeChangeSuccess, onError);
 }
