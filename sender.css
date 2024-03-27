@@ -8,11 +8,11 @@
     position: absolute;
     top: 10%;
     left: 40%;
-    
+    justify-content: stretch;
     background-color: #e5e5e5;
     border-radius: 25px;
     height: 650px;
-    width: 200px;
+    width: 25%;
     display: flex;
     flex-direction: column;
     
@@ -38,56 +38,6 @@
    box-shadow: none;
   }
   
-  
-  
-  .ok-inner{
-    justify-content: center;
-    align-items: center;
-    border: 1px solid black;
-    padding: 20px;
-    border-radius: 50%;
-    height: 165px;
-    width: 165px;
-    margin-top: 25px;
-    margin-left: 15px;
-    position: absolute;
-    background-color: black;
-    box-shadow: 0 4px 8px rgba(10,10,10,10.2);
-  }
-  
-  .ok-outer{
-    border: 1px solid rgb(34, 34, 34);
-    padding: 10px;
-    border-radius: 50%;
-    height: 100px;
-    width: 100px;
-    align-items: center;
-    margin-top: 12px;
-    background-color: black;
-    cursor: pointer;
-    
-    
-    
-  }
-  .ok-outer:active{
-   border: 1px solid rgb(20, 20, 20);
-   cursor: pointer;
-  }
-  
-  .edge-button {
-    position: absolute;
-    width:  5px;
-    height:  5px;
-    border-radius:  50%;
-    background-color: white;
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
   .top {
     top: 10px; 
     left: calc(60% -  25px); 
@@ -109,29 +59,26 @@
   }
   
   
-  .bottom-row{
-    margin-top: 200px;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  
   .box-buttons{
     display: flex;
     justify-content: center;
     padding: 10px;
     margin-left: -10px;
-    
-    
+  }
+
+  #row_container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   
-  .col1{
-    width: 170px;
-    margin-left: -4px;
+  .row1{
   }
   
-  .col2{
-    margin-left: -20px;
+  .row2{
+  }
+
+  .row3{
   }
   
   .bt{
@@ -162,13 +109,20 @@
     justify-content: center;
   }
   
-  .fi-br-power{
-    color: black;
-    
+  .volumeUp{
+    color: white;
   }
   
-  .fi-br-angle-small-left{
-    font-size: 30px;
+  .volumeUp{
+    font-size: 20px;
+    
+  }
+  .volumeUp{
+    color: white;
+  }
+  
+  .volumeUp{
+    font-size: 20px;
     
   }
   
